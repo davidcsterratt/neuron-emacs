@@ -164,6 +164,8 @@
 \\|fclampv\\|ismembrane\\|prstim\
 \\|fcurrent\\|issection\\|psection\
 \\|finitialize\\|nrnglobalmechmenu\\|pval_praxis\\)\\>" . 1)
+        ; neuron/nrnoc.html#Objects
+        ("\\<\\(Random\\|Vector\\|Pointer\\|Graph\\)\\>" . 1)
         ; Functions
         ("\\<\\(fprint\\|hoc_stdio\\|sred\\|xred\
 \\|fscan\\|printf\\|wopen\
@@ -317,6 +319,9 @@ Must be one of:
 
 ;;; Change log
 ;;; $Log: nrnhoc.el,v $
+;;; Revision 1.8  2003/03/06 12:39:42  anaru
+;;; added some hoc Objects highlighting
+;;;
 ;;; Revision 1.7  2003/03/06 12:23:49  dcs
 ;;; * Return now optionally auto-indents lines
 ;;; * Added variable hoc-mode-map
