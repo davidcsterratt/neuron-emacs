@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.4.3
+;; Version: 0.4.4
 ;; Keywords: HOC, NEURON
 ;;
 ;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
@@ -60,7 +60,7 @@
 
 ;;; Code:
 
-(defconst nrnhoc-mode-version "0.4.3"
+(defconst nrnhoc-mode-version "0.4.4"
   "Current version of NRNHOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -141,7 +141,7 @@ be given to `goto-line' to get back to the current line."
 (defvar nrnhoc-mode-map
   (let ((km (make-sparse-keymap)))
     (define-key km [return] 'nrnhoc-return)
-    (define-key km [}] 'nrnhoc-closing-brace)
+    (define-key km "}" 'nrnhoc-closing-brace)
     km)
   "The keymap used in `nrnhoc-mode'.")
 
@@ -251,7 +251,7 @@ All Key Bindings:
   (setq mode-name "Hoc")
   (set (make-local-variable 'indent-line-function) 'nrnhoc-indent-line)
   (set (make-local-variable 'comment-start-skip) "//\\s-+")
-  (set (make-local-variable 'comment-start) "//")
+  (set (make-local-variable 'comment-start) "// ")
   (set (make-local-variable 'comment-column)  nrnhoc-comment-column)
   (set (make-local-variable 'font-lock-defaults)
        '(nrnhoc-font-lock-keywords))
@@ -400,6 +400,12 @@ Must be one of:
 
 ;;; Change log
 ;; $Log: nrnhoc.el,v $
+;; Revision 1.21  2003/09/03 11:57:25  sterratt
+;; * Version 0.4.4
+;; * Fixed broken nrnhoc-close-brace binding
+;; * Fixed broken font-locking of comments in newer versions of emacs
+;;   (21.2.1) by changing comment-start
+;;
 ;; Revision 1.20  2003/06/02 10:12:46  sterratt
 ;; * Version 0.4.3
 ;; * Syntax table nrnhoc-mode-syntax-table separated out from the
