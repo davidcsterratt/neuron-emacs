@@ -6,7 +6,7 @@
 ;; Version: 0.2
 ;; Keywords: HOC, NEURON
 ;;
-;; Copyright (C) 2003 David C. Sterratt
+;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
 ;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 ;;
 ;; The latest stable version of hoc.el can be found here:
 ;;
-;; http://www.anc.ed.ac.uk/~dcs/progs/hoc-mode/hoc.el
+;; http://www.anc.ed.ac.uk/~dcs/progs/neuron/hoc.el
 ;;
 ;;; Installation:
 ;;
@@ -143,17 +143,20 @@
         ; Object-oriented-programming
         ("\\<\\(begintemplate\\|init\\|objref\\|endtemplate\\|new\
 \\|public\\|external\\|objectvar\\|unref\\)\\>" . 1)
-        ; Section stuff
+        ; Section stuff: neuron/geometry.html
         ("\\<\\(access\\|forsec\\|pop_section\
 \\|forall\\|ifsec\\|push_section\
-\\|L\\|diam3d\\|pt3dchange\\|setSpineArea\
-\\|Ra\\|diam_changed\\|pt3dclear\\|spine3d\
+\\|diam3d\\|pt3dchange\\|setSpineArea\
+\\|pt3dclear\\|spine3d\
 \\|arc3d\\|distance\\|pt3dconst\\|x3d\
 \\|area\\|getSpineArea\\|pt3dinsert\\|y3d\
 \\|define_shape\\|n3d\\|pt3dremove\\|z3d\
-\\|diam\\|pt3dadd\\|ri\
-\\|connect\\|delete_section\\|nseg\
+\\|pt3dadd\\|ri\
+\\|connect\\|delete_section\
 \\|create\\|disconnect\\|topology\\)\\>" . 1)
+        ; Built-in Variables: neuron/geometry.html
+        ("\\<\\(L\\|Ra\\|diam\\|nseg\\|diam_changed\\)\\>" .
+         font-lock-variable-name-face)
         ; neuron/nrnoc.html#functions
         ("\\<\\(attr_praxis\\|fit_praxis\\|nrnmechmenu\\|secname\
 \\|batch_run\\|fmatrix\\|nrnpointmenu\\|section_orientation\
@@ -319,6 +322,12 @@ Must be one of:
 
 ;;; Change log
 ;;; $Log: nrnhoc.el,v $
+;;; Revision 1.9  2003/03/06 12:53:33  dcs
+;;; * Version 0.2
+;;; * Changed font-lock-face of L, Ra, diam, nseg and diam_changed to
+;;;   font-lock-variable-name-face
+;;; * Changed URL
+;;;
 ;;; Revision 1.8  2003/03/06 12:39:42  anaru
 ;;; added some hoc Objects highlighting
 ;;;
