@@ -1,3 +1,8 @@
+; Bugs:
+;
+; * Comments with strings in aren't highlighted
+; 
+
 (cond ((fboundp 'point-at-bol)
        (defalias 'hoc-point-at-bol 'point-at-bol)
        (defalias 'hoc-point-at-eol 'point-at-eol))
@@ -129,4 +134,59 @@
 ;(defvar hoc-mode-map
 ;  (let ((km (make-sparse-keymap)))
 ;    (define-key km [return] 'matlab-return)
+
+(setq font-lock-keywords 
+      '(
+        ("//.*" . font-lock-comment-face)
+        ("/\\*[^\\*]*\\*/" . font-lock-comment-face)
+        ; Keywords (proc and func are syntax)
+        ("\\<\\(break\\|else\\|insert\\|stop\\|\\|continue\\|em\
+\\|local\\|strdef\\|\\|debug\\|eqn\\|print\\|uninsert\\|\\|delete\
+\\|for\\|read\\|while\\|\\|depvar\\|help\\|return\\|\\|double\
+\\|if\\|setpointer\\|proc\\|func\\)\\>" . 1)
+        ; Object-oriented-programming
+        ("\\<\\(begintemplate\\|init\\|objref\\|endtemplate\\|new\
+\\|public\\|external\\|objectvar\\|unref\\)\\>" . 1)
+        ; Section stuff
+        ("\\<\\(access\\|forsec\\|pop_section\
+\\|forall\\|ifsec\\|push_section\
+\\|L\\|diam3d\\|pt3dchange\\|setSpineArea\
+\\|Ra\\|diam_changed\\|pt3dclear\\|spine3d\
+\\|arc3d\\|distance\\|pt3dconst\\|x3d\
+\\|area\\|getSpineArea\\|pt3dinsert\\|y3d\
+\\|define_shape\\|n3d\\|pt3dremove\\|z3d\
+\\|diam\\|pt3dadd\\|ri\
+\\|connect\\|delete_section\\|nseg\
+\\|create\\|disconnect\\|topology\\)\\>" . 1)
+        ; neuron/nrnoc.html#functions
+        ("\\<\\(attr_praxis\\|fit_praxis\\|nrnmechmenu\\|secname\
+\\|batch_run\\|fmatrix\\|nrnpointmenu\\|section_orientation\
+\\|batch_save\\|fstim\\|nrnsecmenu\\|sectionname\
+\\|fadvance\\|fstimi\\|parent_connection\\|stop_praxis\
+\\|fclamp\\|hocmech\\|parent_node\\|this_node\
+\\|fclampi\\|initnrn\\|parent_section\\|this_section\
+\\|fclampv\\|ismembrane\\|prstim\
+\\|fcurrent\\|issection\\|psection\
+\\|finitialize\\|nrnglobalmechmenu\\|pval_praxis\\)\\>" . 1)
+        ; Functions
+        ("\\<\\(fprint\\|hoc_stdio\\|sred\\|xred\
+\\|fscan\\|printf\\|wopen\
+\\|getstr\\|ropen\\|xopen\
+\\|doEvents\\|doNotify\
+\\|hoc_pointer_\\|object_pop\\|sprint\
+\\|ivoc_style\\|object_push\\|sscanf\
+\\|allobjects\\|load_file\\|obsolete\\|startsw\
+\\|allobjectvars\\|load_func\\|print_session\\|stopsw\
+\\|chdir\\|load_proc\\|prmat\\|stopwatch\
+\\|checkpoint\\|load_template\\|pwman_place\\|strcmp\
+\\|coredump_on_error\\|machine_name\\|quit\\|symbols\
+\\|dialogs\\|math\\|retrieveaudit\\|system\
+\\|eqinit\\|name_declared\\|save_session\\|units\
+\\|execute\\|neuronhome\\|saveaudit\\|variable_domain\
+\\|execute1\\|numarg\\|show_errmess_always\
+\\|getcwd\\|object_id\\|solve\\)\\>" . font-lock-function-name-face)
+;        ("\\<\\(break\\|ca\\(se\\|tch\\)\\|e\\(lse\\(\\|if\\)\\|ndfunction\\)\
+;\\|for\\|global\\|if\\|otherwise\\|return\\|switch\\|try\\|while\\)\\>" . 1)
+        ))
+
 
