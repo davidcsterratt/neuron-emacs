@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.3.3
+;; Version: 0.4
 ;; Keywords: HOC, NEURON
 ;;
 ;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
@@ -49,6 +49,9 @@
 ;;     (font-lock-mode 1)
 ;;   Or for newer versions of Emacs:
 ;;     (global-font-lock-mode t)
+;;   In Xemacs the following seems to work
+;;     (add-hook 'nrnhoc-mode-hook 'turn-on-font-lock)
+;;
 ;;
 ;; This package will optionally use custom.
 ;;
@@ -57,7 +60,7 @@
 
 ;;; Code:
 
-(defconst nrnhoc-mode-version "0.3.3"
+(defconst nrnhoc-mode-version "0.4"
   "Current version of NRNHOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -90,6 +93,19 @@
 	 (save-excursion (beginning-of-line) (point)))
        (defmacro nrnhoc-point-at-eol ()
 	 (save-excursion (end-of-line) (point)))))
+
+;; This is taken from simple.el since it does not seem to be automatically 
+;; loaded in GNU Emacs
+(defun nrnhoc-line-number (&optional pos respect-narrowing)
+  "Return the line number of POS (defaults to point).
+If RESPECT-NARROWING is non-nil, then the narrowed line number is returned;
+otherwise, the absolute line number is returned.  The returned line can always
+be given to `goto-line' to get back to the current line."
+  (if (and pos (/= pos (point)))
+      (save-excursion
+        (goto-char pos)
+        (line-number nil respect-narrowing))
+    (1+ (count-lines (if respect-narrowing (point-min) 1) (nrnhoc-point-at-bol)))))
 
 
 ;;; User-changeable variables =================================================
@@ -248,8 +264,8 @@ All Key Bindings:
       ((comment
        (string-match "//" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol)))))
     (if comment
-        (+ (point-at-bol) comment )
-      (point-at-eol))))
+        (+ (nrnhoc-point-at-bol) comment )
+      (nrnhoc-point-at-eol))))
         
 (defun nrnhoc-calc-indent ()
   "Return the appropriate indentation for this line as an integer."
@@ -293,7 +309,7 @@ All Key Bindings:
   (save-excursion 
     (cond
      ; Are we on the first line of the buffer?  If so, just indent to 0
-     ((= (line-number) 1)   (indent-line-to 0))
+     ((= (nrnhoc-line-number) 1)   (indent-line-to 0))
      ; Otherwise do the main indent routine
      ; Is the previous line blank, i.e. does not contain any word characters? 
      ; If so, we should indent it
@@ -381,6 +397,14 @@ Must be one of:
 
 ;;; Change log
 ;;; $Log: nrnhoc.el,v $
+;;; Revision 1.17  2003/05/09 11:34:57  sterratt
+;;; * Version 0.4
+;;; * Should now work on emacs as well as xemacs (tested in emacs 20.7.1)
+;;; * New compatibility function nrnhoc-line-number
+;;; * Some point-at-bol and point-at-eol replaced by nrnhoc-point-at-bol
+;;;   and nrnhoc-point-at-eol
+;;; * Minor documentation changes
+;;;
 ;;; Revision 1.16  2003/05/08 16:40:59  sterratt
 ;;; * Fixed bug in documentation
 ;;;
