@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.4.4
+;; Version: 0.4.5
 ;; Keywords: HOC, NEURON
 ;;
 ;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
@@ -60,7 +60,7 @@
 
 ;;; Code:
 
-(defconst nrnhoc-mode-version "0.4.4"
+(defconst nrnhoc-mode-version "0.4.5"
   "Current version of NRNHOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -302,9 +302,9 @@ All Key Bindings:
 ;    (prin1 open-brak)
 ;    (prin1 close-brak)
 ;    (prin1 ci)
-    (+ ci
+    (max (+ ci
        (* open-brak nrnhoc-indent-level) (* close-brak (- nrnhoc-indent-level)
-       ))))
+       )) 0)))
 
 
 (defun nrnhoc-indent-line ()
@@ -400,6 +400,10 @@ Must be one of:
 
 ;;; Change log
 ;; $Log: nrnhoc.el,v $
+;; Revision 1.22  2003/09/11 10:17:36  sterratt
+;; * Version 0.4.5
+;; * Fixed bug which tried to make negative indents
+;;
 ;; Revision 1.21  2003/09/03 11:57:25  sterratt
 ;; * Version 0.4.4
 ;; * Fixed broken nrnhoc-close-brace binding
