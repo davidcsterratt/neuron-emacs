@@ -109,14 +109,21 @@
                   (not (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))))
                  1) 
                 (t 0)))))
-    (prin1 open-brak)
-    (prin1 close-brak)
-    (prin1 ci)
+;    (prin1 open-brak)
+;    (prin1 close-brak)
+;    (prin1 ci)
     (+ ci (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level)))))
 
 
 (defun hoc-indent-line ()
   (interactive)
+    ; Is the previous line blank, i.e. does not contain any word characters
+  (forward-line -1)
+  (cond ((not 
+         (string-match "\\w" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))))
+;         (prin1 "blank")
+         (hoc-indent-line)))
+  (forward-line 1)
   (indent-line-to (hoc-calc-indent)))
 
 ;(defvar hoc-mode-map
