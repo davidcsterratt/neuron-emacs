@@ -1,7 +1,79 @@
-; Bugs:
-;
-; * Comments with strings in aren't highlighted
-; 
+;;; hoc.el --- major mode for HOC dot-hoc files
+;;
+;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
+;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
+;; Created: 03 Mar 03
+;; Version: 0.1
+;; Keywords: HOC, NEURON
+;;
+;; Copyright (C) 2003 David C. Sterratt
+;;
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 2, or (at your option)
+;; any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to
+;; the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+;;
+;;; Commentary:
+;;
+;; This major mode for GNU Emacs provides support for editing HOC
+;; dot-hoc files.  It automatically indents for block structures and
+;; comments.  It highlights code using font-lock.
+;;
+;;; Finding Updates:
+;;
+;; The latest stable version of hoc.el can be found here:
+;;
+;; http://www.anc.ed.ac.uk/~dcs/progs/hoc-mode/hoc.el
+;;
+;;; Installation:
+;;
+;;   Put the this file as "hoc.el" somewhere on your load path, then
+;;   add this to your .emacs or init.el file:
+;;
+;;   (autoload 'hoc-mode "hoc" "Enter HOC mode." t)
+;;   (setq auto-mode-alist (cons '("\\.hoc\\'" . hoc-mode) auto-mode-alist))
+;;
+;; Please read the mode help for hoc-mode for configuration options.
+;;
+;; Syntax highlighting:
+;;   To get font-lock try adding this for older emacsen:
+;;     (font-lock-mode 1)
+;;   Or for newer versions of Emacs:
+;;     (global-font-lock-mode t)
+;;
+;; This package will optionally use custom.
+
+;;; Code:
+
+(defconst hoc-mode-version "0.1"
+  "Current version of HOC mode.")
+
+;; From custom web page for compatibility between versions of custom:
+(eval-and-compile
+  (condition-case ()
+      (require 'custom)
+    (error nil))
+  (if (and (featurep 'custom) (fboundp 'custom-declare-variable))
+      nil ;; We've got what we needed
+    ;; We have the old custom-library, hack around it!
+    (defmacro defgroup (&rest args)
+      nil)
+    (defmacro custom-add-option (&rest args)
+      nil)
+    (defmacro defface (&rest args) nil)
+    (defmacro defcustom (var value doc &rest args)
+      (` (defvar (, var) (, value) (, doc))))))
+
+;; compatibility
 
 (cond ((fboundp 'point-at-bol)
        (defalias 'hoc-point-at-bol 'point-at-bol)
@@ -16,129 +88,43 @@
        (defmacro hoc-point-at-eol ()
 	 (save-excursion (end-of-line) (point)))))
 
-;(defcustom matlab-indent-level 2
-;  "*The basic indentation amount in `matlab-mode'."
-;  :group 'matlab
-;  :type 'integer)
+
+;;; User-changeable variables =================================================
 
-(setq hoc-indent-level 4)
+;; Variables which the user can change
+(defgroup hoc nil
+  "HOC mode."
+  :prefix "hoc-"
+  :group 'languages)
 
+(defcustom hoc-mode-hook nil
+  "*List of functions to call on entry to HOC mode."
+  :group 'hoc
+  :type 'hook)
 
-(defun hoc-mode ()
-  "Documentation"
-  (interactive)
-  (kill-all-local-variables)
-;  (use-local-map hoc-mode-map)
-  (setq major-mode 'hoc-mode)
-  (setq mode-name "Hoc")
-  (make-local-variable 'indent-line-function)
-;  (setq local-abbrev-table matlab-mode-abbrev-table)
-;  (set-syntax-table matlab-mode-syntax-table)
-;  (make-local-variable 'indent-line-function)
-  (setq indent-line-function 'hoc-indent-line)
-;  (make-local-variable 'paragraph-start)
-;  (setq paragraph-start (concat "^$\\|" page-delimiter))
-;  (make-local-variable 'paragraph-separate)
-;  (setq paragraph-separate paragraph-start)
-;  (make-local-variable 'paragraph-ignore-fill-prefix)
-;  (setq paragraph-ignore-fill-prefix t)
-  (make-local-variable 'comment-start-skip)
-  (setq comment-start-skip "//\\s-+")
-  (make-local-variable 'comment-start)
-  (setq comment-start "//")
-;  (make-local-variable 'comment-column)
-;  (setq comment-column matlab-comment-column)
-;  (make-local-variable 'comment-indent-function)
-;  (setq comment-indent-function 'matlab-comment-indent)
-;  (make-local-variable 'fill-column)
-;  (setq fill-column default-fill-column)
-;  (make-local-variable 'auto-fill-function)
-;  (if matlab-auto-fill (setq auto-fill-function 'matlab-auto-fill))
-;  ;; Emacs 20 supports this variable.  This lets users turn auto-fill
-;  ;; on and off and still get the right fill function.
-;  (make-local-variable 'normal-auto-fill-function)
-;  (setq normal-auto-fill-function 'matlab-auto-fill)
-;  (make-local-variable 'fill-prefix)
-;  (make-local-variable 'imenu-generic-expression)
-;  (setq imenu-generic-expression matlab-imenu-generic-expression)
-;  ;; Save hook for verifying src.  This lets us change the name of
-;  ;; the function in `write-file' and have the change be saved.
-;  ;; It also lets us fix mistakes before a `save-and-go'.
-;  (make-local-variable 'write-contents-hooks)
-;  (add-hook 'write-contents-hooks 'matlab-mode-verify-fix-file-fn)
-;  ;; Tempo tags
-;  (make-local-variable 'tempo-local-tags)
-;  (setq tempo-local-tags (append matlab-tempo-tags tempo-local-tags))
-;  ;; give each file it's own parameter history
-;  (make-local-variable 'matlab-shell-save-and-go-history)
-;  (make-local-variable 'font-lock-defaults)
-;  (setq font-lock-defaults '((matlab-font-lock-keywords
-;			      matlab-gaudy-font-lock-keywords
-;			      matlab-really-gaudy-font-lock-keywords
-;			      )
-;			     t ; do not do string/comment highlighting
-;			     nil ; keywords are case sensitive.
-;			     ;; This puts _ as a word constituent,
-;			     ;; simplifying our keywords significantly
-;			     ((?_ . "w"))))
-;  (matlab-enable-block-highlighting 1)
-;  (if window-system (matlab-frame-init))
-;  (run-hooks 'matlab-mode-hook)
-;  (if matlab-vers-on-startup (matlab-show-version)))
-)
+(defcustom hoc-indent-level 4
+  "*The basic indentation amount in `hoc-mode'."
+  :group 'hoc
+  :type 'integer)
 
-(defun hoc-calc-indent ()
-  "Return the appropriate indentation for this line as an integer."
-  (interactive)
-  (let
-      ((ci                              ; current indentation
-       (save-excursion 
-         (forward-line -1)
-         (current-indentation)
-         ))
-       ; is there an open bracket on the previous line that isn't 
-       ; cancelled by a closed bracket?
-       (open-brak                       
-        (save-excursion 
-          (forward-line -1)
-          (cond ((and
-                  (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
-                  (not (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)) )))
-                 1) (t 0))))
-       ; is there an closing bracket on this line that isn't 
-       ; cancelled by a opening bracket?
-       (close-brak              
-        (save-excursion 
-          (cond ((and 
-                  (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))) 
-                  (not (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))))
-                 1) 
-                (t 0)))))
-;    (prin1 open-brak)
-;    (prin1 close-brak)
-;    (prin1 ci)
-    (+ ci (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level)))))
+(defcustom hoc-comment-column 40
+  "*The goal comment column in `hoc-mode' buffers."
+  :group 'hoc
+  :type 'integer)
 
+
+;;; HOC mode variables =====================================================
 
-(defun hoc-indent-line ()
-  (interactive)
-    ; Is the previous line blank, i.e. does not contain any word characters
-  (forward-line -1)
-  (cond ((not 
-         (string-match "\\w" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))))
-;         (prin1 "blank")
-         (hoc-indent-line)))
-  (forward-line 1)
-  (indent-line-to (hoc-calc-indent)))
+
+;;; Keybindings ===============================================================
 
-;(defvar hoc-mode-map
-;  (let ((km (make-sparse-keymap)))
-;    (define-key km [return] 'matlab-return)
+
+;;; Font locking keywords =====================================================
 
-(setq font-lock-keywords 
+(defvar hoc-font-lock-keywords 
       '(
-        ("//.*" . font-lock-comment-face)
-        ("/\\*[^\\*]*\\*/" . font-lock-comment-face)
+;        ("//.*" . font-lock-comment-face)
+;        ("/\\*[^\\*]*\\*/" . font-lock-comment-face)
         ; Keywords (proc and func are syntax)
         ("\\<\\(break\\|else\\|insert\\|stop\\|\\|continue\\|em\
 \\|local\\|strdef\\|\\|debug\\|eqn\\|print\\|uninsert\\|\\|delete\
@@ -187,6 +173,104 @@
 \\|getcwd\\|object_id\\|solve\\)\\>" . font-lock-function-name-face)
 ;        ("\\<\\(break\\|ca\\(se\\|tch\\)\\|e\\(lse\\(\\|if\\)\\|ndfunction\\)\
 ;\\|for\\|global\\|if\\|otherwise\\|return\\|switch\\|try\\|while\\)\\>" . 1)
-        ))
+        )
+        "Expressions to highlight in HOC mode.")
+
+
+;;; HOC mode entry point ==================================================
+
+(defun hoc-mode ()
+  "HOC-mode is a major mode for editing HOC dot-hoc files.
+
+Variables:
+  `hoc-indent-level'		  Level to indent blocks.
+  `hoc-comment-column'		The goal comment column
+  `fill-column'			      Column used in auto-fill.
+"
+  (interactive)
+  (kill-all-local-variables)
+;  (use-local-map hoc-mode-map)
+  (setq major-mode 'hoc-mode)
+  (setq mode-name "Hoc")
+  (make-local-variable 'indent-line-function)
+  (setq indent-line-function 'hoc-indent-line)
+  (make-local-variable 'comment-start-skip)
+  (setq comment-start-skip "//\\s-+")
+  (make-local-variable 'comment-start)
+  (setq comment-start "//")
+  (make-local-variable 'comment-column)
+  (setq comment-column hoc-comment-column)
+  (make-local-variable 'font-lock-defaults)
+  (setq font-lock-defaults '((hoc-font-lock-keywords)
+                             nil ; do not do string/comment highlighting
+                             nil ; keywords are case sensitive.
+                             ;; This puts _ as a word constituent,
+                             ;; simplifying our keywords significantly
+                             ((?_ . "w")
+                              (?\n . "> b")
+                              (?/ . ". 1456")
+                              (?* . ". 23")   
+                              (?\^m . "> b")
+                              )))
+  (run-hooks 'hoc-mode-hook)
+  )
+
+
+;;; Indent functions ==========================================================
+
+(defun hoc-calc-indent ()
+  "Return the appropriate indentation for this line as an integer."
+  (interactive)
+  (let
+      ((ci                              ; current indentation
+       (save-excursion 
+         (forward-line -1)
+         (current-indentation)
+         ))
+       ; is there an open bracket on the previous line that isn't 
+       ; cancelled by a closed bracket?
+       (open-brak                       
+        (save-excursion 
+          (forward-line -1)
+          (cond ((and
+                  (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
+                  (not (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)) )))
+                 1) (t 0))))
+       ; is there an closing bracket on this line that isn't 
+       ; cancelled by a opening bracket?
+       (close-brak              
+        (save-excursion 
+          (cond ((and 
+                  (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))) 
+                  (not (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))))
+                 1) 
+                (t 0)))))
+;    (prin1 open-brak)
+;    (prin1 close-brak)
+;    (prin1 ci)
+    (+ ci (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level)))))
 
 
+(defun hoc-indent-line ()
+  (interactive)
+    ; Is the previous line blank, i.e. does not contain any word characters
+  (forward-line -1)
+  (cond ((not 
+         (string-match "\\w" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))))
+;         (prin1 "blank")
+         (hoc-indent-line)))
+  (forward-line 1)
+  (indent-line-to (hoc-calc-indent)))
+
+
+;;; Change log
+;;; $Log: nrnhoc.el,v $
+;;; Revision 1.6  2003/03/03 16:24:25  dcs
+;;; * Release 0.1
+;;; * Quotes in comment font locking fixed
+;;; * Documentation added
+;;; * User variables optionally controlled by custom
+;;; * New variable hoc-comment-column
+;;;
+
+;;; hoc.el ends here
