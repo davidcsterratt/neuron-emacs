@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.3
+;; Version: 0.3.1
 ;; Keywords: HOC, NEURON
 ;;
 ;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
@@ -57,7 +57,7 @@
 
 ;;; Code:
 
-(defconst hoc-mode-version "0.3"
+(defconst hoc-mode-version "0.3.1"
   "Current version of HOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -315,7 +315,12 @@ All Key Bindings:
              (hoc-indent-line)))
       (forward-line 1)
       ; Finally we indent this line
-      (indent-line-to (hoc-calc-indent))))))
+      (indent-line-to (hoc-calc-indent)))))
+  ; Is this line blank?  If so put the point at the end
+      (cond ((not
+             (string-match "\\w" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))))
+             (end-of-line)))
+    )
 
 
 ;;; The return key ============================================================
@@ -387,6 +392,11 @@ Must be one of:
 
 ;;; Change log
 ;;; $Log: nrnhoc.el,v $
+;;; Revision 1.13  2003/03/07 17:58:31  dcs
+;;; * Version 0.3.1
+;;; * Bug fix: tab on empty line puts the point at the end of the line now
+;;; * Changed function: hoc-indent-line
+;;;
 ;;; Revision 1.12  2003/03/07 13:08:23  dcs
 ;;; * Version 0.3
 ;;; * New feature: electric closing braces
