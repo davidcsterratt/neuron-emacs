@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.4.2
+;; Version: 0.4.3
 ;; Keywords: HOC, NEURON
 ;;
 ;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
@@ -60,7 +60,7 @@
 
 ;;; Code:
 
-(defconst nrnhoc-mode-version "0.4.2"
+(defconst nrnhoc-mode-version "0.4.3"
   "Current version of NRNHOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -144,6 +144,23 @@ be given to `goto-line' to get back to the current line."
     (define-key km [}] 'nrnhoc-closing-brace)
     km)
   "The keymap used in `nrnhoc-mode'.")
+
+
+;;; Syntax table ==============================================================
+
+;; Defines comment font locking
+(defvar nrnhoc-mode-syntax-table
+  (let ((st (make-syntax-table)))
+    (modify-syntax-entry ?_  "w")
+    (modify-syntax-entry ?\n  "> b")
+    (modify-syntax-entry ?/  (
+                              if (string-match "XEmacs" (emacs-version))
+                                 ". 1456"
+                               ". 124b"))
+    (modify-syntax-entry ?*  ". 23")
+    (modify-syntax-entry ?\^m  "> b")
+    st)
+  "Syntax table for `nrnhoc-mode'.")
 
 
 ;;; Font locking keywords =====================================================
@@ -232,38 +249,12 @@ All Key Bindings:
   (use-local-map nrnhoc-mode-map)
   (setq major-mode 'nrnhoc-mode)
   (setq mode-name "Hoc")
-  (make-local-variable 'indent-line-function)
-  (setq indent-line-function 'nrnhoc-indent-line)
-  (make-local-variable 'comment-start-skip)
-  (setq comment-start-skip "//\\s-+")
-  (make-local-variable 'comment-start)
-  (setq comment-start "//")
-  (make-local-variable 'comment-column)
-  (setq comment-column nrnhoc-comment-column)
-  (make-local-variable 'font-lock-defaults)
-  (cond ( 
-         (string-match "XEmacs" (emacs-version))
-         (setq font-lock-defaults '((nrnhoc-font-lock-keywords)
-                             nil ; do not do string/comment highlighting
-                             nil ; keywords are case sensitive.
-                             ;; This puts _ as a word constituent,
-                             ;; simplifying our keywords significantly
-                             ((?_ . "w")
-                              (?\n . "> b")
-                              (?/ . ". 1456")
-                              (?* . ". 23")
-                              (?\^m . "> b")))))
-        (t
-         (setq font-lock-defaults '((nrnhoc-font-lock-keywords)
-                             nil ; do not do string/comment highlighting
-                             nil ; keywords are case sensitive.
-                             ;; This puts _ as a word constituent,
-                             ;; simplifying our keywords significantly
-                             ((?_ . "w")
-                              (?\n . "> b")
-                              (?/ . ". 124b")
-                              (?* . ". 23")
-                              (?\^m . "> b"))))))
+  (set (make-local-variable 'indent-line-function) 'nrnhoc-indent-line)
+  (set (make-local-variable 'comment-start-skip) "//\\s-+")
+  (set (make-local-variable 'comment-start) "//")
+  (set (make-local-variable 'comment-column)  nrnhoc-comment-column)
+  (set (make-local-variable 'font-lock-defaults)
+       '(nrnhoc-font-lock-keywords))
   (run-hooks 'nrnhoc-mode-hook)
   )
 
@@ -409,6 +400,13 @@ Must be one of:
 
 ;;; Change log
 ;; $Log: nrnhoc.el,v $
+;; Revision 1.20  2003/06/02 10:12:46  sterratt
+;; * Version 0.4.3
+;; * Syntax table nrnhoc-mode-syntax-table separated out from the
+;;   nrnhoc-mode function according to Stefan Monier's suggestion and
+;;   the code in http://www.emacswiki.org/cgi-bin/wiki.pl?SampleMode
+;; * TODO: clean up the indentation code
+;;
 ;; Revision 1.19  2003/05/30 11:16:13  sterratt
 ;; * Version 0.4.2
 ;; * Syntax highlighting of // comments now works under both emacs and xemacs
