@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.4
+;; Version: 0.4.2
 ;; Keywords: HOC, NEURON
 ;;
 ;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
@@ -60,7 +60,7 @@
 
 ;;; Code:
 
-(defconst nrnhoc-mode-version "0.4.1"
+(defconst nrnhoc-mode-version "0.4.2"
   "Current version of NRNHOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -241,7 +241,9 @@ All Key Bindings:
   (make-local-variable 'comment-column)
   (setq comment-column nrnhoc-comment-column)
   (make-local-variable 'font-lock-defaults)
-  (setq font-lock-defaults '((nrnhoc-font-lock-keywords)
+  (cond ( 
+         (string-match "XEmacs" (emacs-version))
+         (setq font-lock-defaults '((nrnhoc-font-lock-keywords)
                              nil ; do not do string/comment highlighting
                              nil ; keywords are case sensitive.
                              ;; This puts _ as a word constituent,
@@ -250,8 +252,18 @@ All Key Bindings:
                               (?\n . "> b")
                               (?/ . ". 1456")
                               (?* . ". 23")
-                              (?\^m . "> b")
-                              )))
+                              (?\^m . "> b")))))
+        (t
+         (setq font-lock-defaults '((nrnhoc-font-lock-keywords)
+                             nil ; do not do string/comment highlighting
+                             nil ; keywords are case sensitive.
+                             ;; This puts _ as a word constituent,
+                             ;; simplifying our keywords significantly
+                             ((?_ . "w")
+                              (?\n . "> b")
+                              (?/ . ". 124b")
+                              (?* . ". 23")
+                              (?\^m . "> b"))))))
   (run-hooks 'nrnhoc-mode-hook)
   )
 
@@ -397,6 +409,10 @@ Must be one of:
 
 ;;; Change log
 ;; $Log: nrnhoc.el,v $
+;; Revision 1.19  2003/05/30 11:16:13  sterratt
+;; * Version 0.4.2
+;; * Syntax highlighting of // comments now works under both emacs and xemacs
+;;
 ;; Revision 1.18  2003/05/19 15:04:38  sterratt
 ;; * Version 0.4.1
 ;; * Fixed line-number bug so it really should work under emacs now
