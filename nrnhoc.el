@@ -91,21 +91,27 @@
          (forward-line -1)
          (current-indentation)
          ))
-       (open-brak                       ; is there an open bracket?
+       ; is there an open bracket on the previous line that isn't 
+       ; cancelled by a closed bracket?
+       (open-brak                       
         (save-excursion 
-          (let 
-              (eol (hoc-point-at-eol))
-            (forward-line -1)
-            (cond ((string-match "{" (buffer-substring (hoc-point-at-bol) eol))
-                 1) (t 0)))))
-       (close-brak                      ; is there a closing bracket?
+          (forward-line -1)
+          (cond ((and
+                  (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
+                  (not (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)) )))
+                 1) (t 0))))
+       ; is there an closing bracket on this line that isn't 
+       ; cancelled by a opening bracket?
+       (close-brak              
         (save-excursion 
-          (cond ((string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
-                 1) (t 0)))))
+          (cond ((and 
+                  (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))) 
+                  (not (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))))
+                 1) 
+                (t 0)))))
     (prin1 open-brak)
     (prin1 close-brak)
     (prin1 ci)
-;    (prin1 (+ ci (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level))))
     (+ ci (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level)))))
 
 
