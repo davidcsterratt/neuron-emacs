@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.2.1
+;; Version: 0.2.2
 ;; Keywords: HOC, NEURON
 ;;
 ;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
@@ -57,7 +57,7 @@
 
 ;;; Code:
 
-(defconst hoc-mode-version "0.2.1"
+(defconst hoc-mode-version "0.2.2"
   "Current version of HOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -314,15 +314,20 @@ Must be one of:
 (defun hoc-indent-before-ret ()
   "Indent line, start new line, and indent again."
   (interactive)
-  (hoc-indent-line)
-  (end-of-line)
   (newline)
+  (forward-line -1)
+  (hoc-indent-line)
+  (forward-line 1)
   (hoc-indent-line))
 
 
 
 ;;; Change log
 ;;; $Log: nrnhoc.el,v $
+;;; Revision 1.11  2003/03/06 13:55:41  dcs
+;;; * Version 0.2.2
+;;; * Another modification to hoc-indent-before-ret to fix the bug better
+;;;
 ;;; Revision 1.10  2003/03/06 13:48:00  dcs
 ;;; * Version 0.2.1
 ;;; * Fixed bug in hoc-indent-before-ret that caused a new line to be
