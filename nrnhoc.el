@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.1
+;; Version: 0.2
 ;; Keywords: HOC, NEURON
 ;;
 ;; Copyright (C) 2003 David C. Sterratt
@@ -51,10 +51,13 @@
 ;;     (global-font-lock-mode t)
 ;;
 ;; This package will optionally use custom.
+;;
+;; It is partly based on Eric M. Ludlam's and Matthew R. Wette's matlab-mode
+;;
 
 ;;; Code:
 
-(defconst hoc-mode-version "0.1"
+(defconst hoc-mode-version "0.2"
   "Current version of HOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -117,6 +120,13 @@
 
 
 ;;; Keybindings ===============================================================
+
+;; mode map
+(defvar hoc-mode-map
+  (let ((km (make-sparse-keymap)))
+    (define-key km [return] 'hoc-return)
+    km)
+  "The keymap used in `hoc-mode'.")
 
 
 ;;; Font locking keywords =====================================================
@@ -181,15 +191,19 @@
 
 (defun hoc-mode ()
   "HOC-mode is a major mode for editing HOC dot-hoc files.
+\\<hoc-mode-map>
 
 Variables:
   `hoc-indent-level'		  Level to indent blocks.
   `hoc-comment-column'		The goal comment column
   `fill-column'			      Column used in auto-fill.
-"
+  `hoc-return-function'  	Customize RET handling with this function
+
+All Key Bindings:
+\\{hoc-mode-map}"
   (interactive)
   (kill-all-local-variables)
-;  (use-local-map hoc-mode-map)
+  (use-local-map hoc-mode-map)
   (setq major-mode 'hoc-mode)
   (setq mode-name "Hoc")
   (make-local-variable 'indent-line-function)
@@ -262,9 +276,56 @@ Variables:
   (forward-line 1)
   (indent-line-to (hoc-calc-indent)))
 
+
+;;; The return key ============================================================
+
+(defcustom hoc-return-function 'hoc-indent-before-ret
+  "Function to handle return key.
+Must be one of:
+    'hoc-plain-ret
+    'hoc-indent-after-ret
+    'hoc-indent-before-ret"
+  :group 'hoc
+  :type '(choice (function-item hoc-plain-ret)
+		 (function-item hoc-indent-after-ret)
+		 (function-item hoc-indent-before-ret)))
+
+(defun hoc-return ()
+  "Handle carriage return in `hoc-mode'."
+  (interactive)
+  (funcall hoc-return-function))
+
+(defun hoc-plain-ret ()
+  "Vanilla new line."
+  (interactive)
+  (newline))
+  
+(defun hoc-indent-after-ret ()
+  "Indent after new line."
+  (interactive)
+  (newline)
+  (hoc-indent-line))
+
+(defun hoc-indent-before-ret ()
+  "Indent line, start new line, and indent again."
+  (interactive)
+  (hoc-indent-line)
+  (newline)
+  (hoc-indent-line))
+
+
 
 ;;; Change log
 ;;; $Log: nrnhoc.el,v $
+;;; Revision 1.7  2003/03/06 12:23:49  dcs
+;;; * Return now optionally auto-indents lines
+;;; * Added variable hoc-mode-map
+;;; * Added variable hoc-return-function
+;;; * Added function hoc-return
+;;; * Added function hoc-plain-ret
+;;; * Added function hoc-indent-after-ret
+;;; * Added function hoc-indent-before-ret
+;;;
 ;;; Revision 1.6  2003/03/03 16:24:25  dcs
 ;;; * Release 0.1
 ;;; * Quotes in comment font locking fixed
