@@ -55,12 +55,12 @@
 ;;
 ;; This package will optionally use custom.
 ;;
-;; It is partly based on Eric M. Ludlam's and Matthew R. Wette's matlab-mode
+;; It is partly based on Eric M.  Ludlam's and Matthew R.  Wette's matlab-mode
 ;;
 
 ;;; Code:
 
-(defconst nrnhoc-mode-version "0.4"
+(defconst nrnhoc-mode-version "0.4.1"
   "Current version of NRNHOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -94,7 +94,7 @@
        (defmacro nrnhoc-point-at-eol ()
 	 (save-excursion (end-of-line) (point)))))
 
-;; This is taken from simple.el since it does not seem to be automatically 
+;; This is taken from simple.el since it does not seem to be automatically
 ;; loaded in GNU Emacs
 (defun nrnhoc-line-number (&optional pos respect-narrowing)
   "Return the line number of POS (defaults to point).
@@ -104,7 +104,7 @@ be given to `goto-line' to get back to the current line."
   (if (and pos (/= pos (point)))
       (save-excursion
         (goto-char pos)
-        (line-number nil respect-narrowing))
+        (nrnhoc-line-number nil respect-narrowing))
     (1+ (count-lines (if respect-narrowing (point-min) 1) (nrnhoc-point-at-bol)))))
 
 
@@ -148,7 +148,7 @@ be given to `goto-line' to get back to the current line."
 
 ;;; Font locking keywords =====================================================
 
-(defvar nrnhoc-font-lock-keywords 
+(defvar nrnhoc-font-lock-keywords
       '(
 ;        ("//.*" . font-lock-comment-face)
 ;        ("/\\*[^\\*]*\\*/" . font-lock-comment-face)
@@ -175,8 +175,8 @@ be given to `goto-line' to get back to the current line."
         ("\\<\\(L\\|Ra\\|diam\\|nseg\\|diam_changed\\)\\>" .
          font-lock-variable-name-face)
         ; Built-in global varibailes: neuron/1nrn.html#globals
-        ("\\<\\(celsius\\|dt\\|t\\|clamp_resist\\|secondorder\\)\\>" . 
-         font-lock-variable-name-face) 
+        ("\\<\\(celsius\\|dt\\|t\\|clamp_resist\\|secondorder\\)\\>" .
+         font-lock-variable-name-face)
         ; neuron/nrnoc.html#functions
         ("\\<\\(attr_praxis\\|fit_praxis\\|nrnmechmenu\\|secname\
 \\|batch_run\\|fmatrix\\|nrnpointmenu\\|section_orientation\
@@ -249,7 +249,7 @@ All Key Bindings:
                              ((?_ . "w")
                               (?\n . "> b")
                               (?/ . ". 1456")
-                              (?* . ". 23")   
+                              (?* . ". 23")
                               (?\^m . "> b")
                               )))
   (run-hooks 'nrnhoc-mode-hook)
@@ -260,7 +260,7 @@ All Key Bindings:
 
 (defun nrnhoc-point-at-eol-or-boc ()
   "Return the location of the point at the end of the line or the beginning of a //-style comment."
-  (let 
+  (let
       ((comment
        (string-match "//" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol)))))
     (if comment
@@ -272,50 +272,51 @@ All Key Bindings:
   (interactive)
   (let
       ((ci                              ; current indentation
-       (save-excursion 
+       (save-excursion
          (forward-line -1)
          (current-indentation)
          ))
-       ; is there an open bracket on the previous line that isn't 
+       ; is there an open bracket on the previous line that isn't
        ; cancelled by a closed bracket?
-       (open-brak                       
-        (save-excursion 
+       (open-brak
+        (save-excursion
           (forward-line -1)
           (cond ((and
                   (string-match "{" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol-or-boc)))
 
                   (not (string-match "{.*}" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol-or-boc)) )))
                  1) (t 0))))
-       ; is there an closing bracket on this line that isn't 
+       ; is there an closing bracket on this line that isn't
        ; cancelled by a opening bracket?
-       (close-brak              
-        (save-excursion 
-          (cond ((and 
-                  (string-match "}" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol-or-boc))) 
+       (close-brak
+        (save-excursion
+          (cond ((and
+                  (string-match "}" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol-or-boc)))
                   (not (string-match "{.*}" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol-or-boc)))))
-                 1) 
+                 1)
                 (t 0))))
        )
 ;    (prin1 open-brak)
 ;    (prin1 close-brak)
 ;    (prin1 ci)
-    (+ ci 
+    (+ ci
        (* open-brak nrnhoc-indent-level) (* close-brak (- nrnhoc-indent-level)
        ))))
 
 
 (defun nrnhoc-indent-line ()
+  "Indent a line in `nrnhoc-mode'."
   (interactive)
-  (save-excursion 
+  (save-excursion
     (cond
      ; Are we on the first line of the buffer?  If so, just indent to 0
      ((= (nrnhoc-line-number) 1)   (indent-line-to 0))
      ; Otherwise do the main indent routine
-     ; Is the previous line blank, i.e. does not contain any word characters? 
+     ; Is the previous line blank, i.e. does not contain any word characters
      ; If so, we should indent it
-     (t 
+     (t
       (forward-line -1)
-      (cond ((not 
+      (cond ((not
               (string-match "\\w" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol))))
              (nrnhoc-indent-line)))
       (forward-line 1)
@@ -370,8 +371,7 @@ Must be one of:
   "Function to handle \"}\" key.
 Must be one of:
     'nrnhoc-plain-closing-brace
-    'nrnhoc-electric-closing-brace
-    "
+    'nrnhoc-electric-closing-brace"
   :group 'hoc
   :type '(choice (function-item nrnhoc-plain-closing-brace)
 		 (function-item nrnhoc-electric-closing-brace)))
@@ -384,92 +384,99 @@ Must be one of:
 (defun nrnhoc-plain-closing-brace ()
   "Insert closing brace."
   (interactive)
-  (insert-char ?} ))
+  (insert-char ?} 1 ))
 
 (defun nrnhoc-electric-closing-brace ()
   "Insert closing brace and indent."
   (interactive)
-  (insert-char ?} )
+  (insert-char ?} 1 )
   (nrnhoc-indent-line)
   (end-of-line))
 
 
 
 ;;; Change log
-;;; $Log: nrnhoc.el,v $
-;;; Revision 1.17  2003/05/09 11:34:57  sterratt
-;;; * Version 0.4
-;;; * Should now work on emacs as well as xemacs (tested in emacs 20.7.1)
-;;; * New compatibility function nrnhoc-line-number
-;;; * Some point-at-bol and point-at-eol replaced by nrnhoc-point-at-bol
-;;;   and nrnhoc-point-at-eol
-;;; * Minor documentation changes
-;;;
-;;; Revision 1.16  2003/05/08 16:40:59  sterratt
-;;; * Fixed bug in documentation
-;;;
-;;; Revision 1.15  2003/03/11 12:43:31  dcs
-;;; * Version 0.3.3
-;;; * Fixed fatal bug due to brackets left from removing comment in
-;;;   previous version
-;;;
-;;; Revision 1.14  2003/03/10 15:18:37  dcs
-;;; * Version 0.3.2
-;;; * Bug fix: closing and opening bracket on same line (e.g. " } else { ")
-;;;   now are treated as closing bracket
-;;; * Changed function hoc-calc-indent
-;;;
-;;; Revision 1.13  2003/03/07 17:58:31  dcs
-;;; * Version 0.3.1
-;;; * Bug fix: tab on empty line puts the point at the end of the line now
-;;; * Changed function: hoc-indent-line
-;;;
-;;; Revision 1.12  2003/03/07 13:08:23  dcs
-;;; * Version 0.3
-;;; * New feature: electric closing braces
-;;; * Bug fix: Indentation of comments with braces in them
-;;; * Bug fix: Indentation of first line of buffer
-;;; * Bug fix: Point location in line doesn't change when indenting now
-;;; * New functions: hoc-closing-brace, hoc-plain-closing-brace,
-;;;   hoc-electric-closing-brace
-;;; * New variable: hoc-closing-brace-function
-;;; * New feature: celsius, dt, t, clamp_resist, secondorder fontified
-;;; * New function: hoc-point-at-eol-or-boc
-;;; * Changed functions: hoc-calc-indent, hoc-indent-line
-;;;
-;;; Revision 1.11  2003/03/06 13:55:41  dcs
-;;; * Version 0.2.2
-;;; * Another modification to hoc-indent-before-ret to fix the bug better
-;;;
-;;; Revision 1.10  2003/03/06 13:48:00  dcs
-;;; * Version 0.2.1
-;;; * Fixed bug in hoc-indent-before-ret that caused a new line to be
-;;;   inserted before the current line
-;;;
-;;; Revision 1.9  2003/03/06 12:53:33  dcs
-;;; * Version 0.2
-;;; * Changed font-lock-face of L, Ra, diam, nseg and diam_changed to
-;;;   font-lock-variable-name-face
-;;; * Changed URL
-;;;
-;;; Revision 1.8  2003/03/06 12:39:42  anaru
-;;; added some hoc Objects highlighting
-;;;
-;;; Revision 1.7  2003/03/06 12:23:49  dcs
-;;; * Return now optionally auto-indents lines
-;;; * Added variable hoc-mode-map
-;;; * Added variable hoc-return-function
-;;; * Added function hoc-return
-;;; * Added function hoc-plain-ret
-;;; * Added function hoc-indent-after-ret
-;;; * Added function hoc-indent-before-ret
-;;;
-;;; Revision 1.6  2003/03/03 16:24:25  dcs
-;;; * Release 0.1
-;;; * Quotes in comment font locking fixed
-;;; * Documentation added
-;;; * User variables optionally controlled by custom
-;;; * New variable hoc-comment-column
-;;;
+;; $Log: nrnhoc.el,v $
+;; Revision 1.18  2003/05/19 15:04:38  sterratt
+;; * Version 0.4.1
+;; * Fixed line-number bug so it really should work under emacs now
+;; * Checked the documentation using M-x checkdoc and fixed errors
+;;
+;; Revision 1.17  2003/05/09 11:34:57  sterratt
+;; * Version 0.4
+;; * Should now work on emacs as well as xemacs (tested in emacs 20.7.1)
+;; * New compatibility function nrnhoc-line-number
+;; * Some point-at-bol and point-at-eol replaced by nrnhoc-point-at-bol
+;;   and nrnhoc-point-at-eol
+;; * Minor documentation changes
+;;
+;; Revision 1.16  2003/05/08 16:40:59  sterratt
+;; * Fixed bug in documentation
+;;
+;; Revision 1.15  2003/03/11 12:43:31  dcs
+;; * Version 0.3.3
+;; * Fixed fatal bug due to brackets left from removing comment in
+;;   previous version
+;;
+;; Revision 1.14  2003/03/10 15:18:37  dcs
+;; * Version 0.3.2
+;; * Bug fix: closing and opening bracket on same line (e.g. " } else { ")
+;;   now are treated as closing bracket
+;; * Changed function hoc-calc-indent
+;;
+;; Revision 1.13  2003/03/07 17:58:31  dcs
+;; * Version 0.3.1
+;; * Bug fix: tab on empty line puts the point at the end of the line now
+;; * Changed function: hoc-indent-line
+;;
+;; Revision 1.12  2003/03/07 13:08:23  dcs
+;; * Version 0.3
+;; * New feature: electric closing braces
+;; * Bug fix: Indentation of comments with braces in them
+;; * Bug fix: Indentation of first line of buffer
+;; * Bug fix: Point location in line doesn't change when indenting now
+;; * New functions: hoc-closing-brace, hoc-plain-closing-brace,
+;;   hoc-electric-closing-brace
+;; * New variable: hoc-closing-brace-function
+;; * New feature: celsius, dt, t, clamp_resist, secondorder fontified
+;; * New function: hoc-point-at-eol-or-boc
+;; * Changed functions: hoc-calc-indent, hoc-indent-line
+;;
+;; Revision 1.11  2003/03/06 13:55:41  dcs
+;; * Version 0.2.2
+;; * Another modification to hoc-indent-before-ret to fix the bug better
+;;
+;; Revision 1.10  2003/03/06 13:48:00  dcs
+;; * Version 0.2.1
+;; * Fixed bug in hoc-indent-before-ret that caused a new line to be
+;;   inserted before the current line
+;;
+;; Revision 1.9  2003/03/06 12:53:33  dcs
+;; * Version 0.2
+;; * Changed font-lock-face of L, Ra, diam, nseg and diam_changed to
+;;   font-lock-variable-name-face
+;; * Changed URL
+;;
+;; Revision 1.8  2003/03/06 12:39:42  anaru
+;; added some hoc Objects highlighting
+;;
+;; Revision 1.7  2003/03/06 12:23:49  dcs
+;; * Return now optionally auto-indents lines
+;; * Added variable hoc-mode-map
+;; * Added variable hoc-return-function
+;; * Added function hoc-return
+;; * Added function hoc-plain-ret
+;; * Added function hoc-indent-after-ret
+;; * Added function hoc-indent-before-ret
+;;
+;; Revision 1.6  2003/03/03 16:24:25  dcs
+;; * Release 0.1
+;; * Quotes in comment font locking fixed
+;; * Documentation added
+;; * User variables optionally controlled by custom
+;; * New variable hoc-comment-column
+;;
 
-;;; hoc.el ends here
+(provide 'nrnhoc)
+
+;;; nrnhoc.el ends here
