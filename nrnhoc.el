@@ -86,28 +86,24 @@
   "Return the appropriate indentation for this line as an integer."
   (interactive)
   (let
-      ((ci   
+      ((ci                              ; current indentation
        (save-excursion 
          (forward-line -1)
-;         (cond 
-;          ((string-match "\s" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
-           (current-indentation)
-;)
-;          (t 
-;           (hoc-indent-line))
-;)
+         (current-indentation)
          ))
-       (open-brak
+       (open-brak                       ; is there an open bracket?
         (save-excursion 
-          (forward-line -1)
-          (cond ((string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
-                 1) (t 0))))
-       (close-brak
+          (let 
+              (eol (hoc-point-at-eol))
+            (forward-line -1)
+            (cond ((string-match "{" (buffer-substring (hoc-point-at-bol) eol))
+                 1) (t 0)))))
+       (close-brak                      ; is there a closing bracket?
         (save-excursion 
           (cond ((string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
                  1) (t 0)))))
-;    (prin1 open-brak)
-;    (prin1 close-brak)
+    (prin1 open-brak)
+    (prin1 close-brak)
     (prin1 ci)
 ;    (prin1 (+ ci (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level))))
     (+ ci (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level)))))
