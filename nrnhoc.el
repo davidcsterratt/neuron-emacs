@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.2.2
+;; Version: 0.3
 ;; Keywords: HOC, NEURON
 ;;
 ;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
@@ -57,7 +57,7 @@
 
 ;;; Code:
 
-(defconst hoc-mode-version "0.2.2"
+(defconst hoc-mode-version "0.3"
   "Current version of HOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -125,6 +125,7 @@
 (defvar hoc-mode-map
   (let ((km (make-sparse-keymap)))
     (define-key km [return] 'hoc-return)
+    (define-key km [}] 'hoc-closing-brace)
     km)
   "The keymap used in `hoc-mode'.")
 
@@ -157,6 +158,9 @@
         ; Built-in Variables: neuron/geometry.html
         ("\\<\\(L\\|Ra\\|diam\\|nseg\\|diam_changed\\)\\>" .
          font-lock-variable-name-face)
+        ; Built-in global varibailes: neuron/1nrn.html#globals
+        ("\\<\\(celsius\\|dt\\|t\\|clamp_resist\\|secondorder\\)\\>" . 
+         font-lock-variable-name-face) 
         ; neuron/nrnoc.html#functions
         ("\\<\\(attr_praxis\\|fit_praxis\\|nrnmechmenu\\|secname\
 \\|batch_run\\|fmatrix\\|nrnpointmenu\\|section_orientation\
@@ -199,10 +203,11 @@
 \\<hoc-mode-map>
 
 Variables:
-  `hoc-indent-level'		  Level to indent blocks.
-  `hoc-comment-column'		The goal comment column
-  `fill-column'			      Column used in auto-fill.
-  `hoc-return-function'  	Customize RET handling with this function
+  `hoc-indent-level'		       Level to indent blocks.
+  `hoc-comment-column'		     The goal comment column
+  `fill-column'			           Column used in auto-fill.
+  `hoc-return-function'  	     Customize RET handling with this function
+  `hoc-closing-brace-function' Customize } handling with this function
 
 All Key Bindings:
 \\{hoc-mode-map}"
@@ -237,6 +242,15 @@ All Key Bindings:
 
 ;;; Indent functions ==========================================================
 
+(defun hoc-point-at-eol-or-boc ()
+  "Return the location of the point at the end of the line or the beginning of a //-style comment."
+  (let 
+      ((comment
+       (string-match "//" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))))
+    (if comment
+        (+ (point-at-bol) comment )
+      (point-at-eol))))
+        
 (defun hoc-calc-indent ()
   "Return the appropriate indentation for this line as an integer."
   (interactive)
@@ -252,34 +266,56 @@ All Key Bindings:
         (save-excursion 
           (forward-line -1)
           (cond ((and
-                  (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
-                  (not (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)) )))
+;                  (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
+                  (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)))
+
+                  (not (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)) )))
                  1) (t 0))))
        ; is there an closing bracket on this line that isn't 
        ; cancelled by a opening bracket?
        (close-brak              
         (save-excursion 
           (cond ((and 
-                  (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))) 
-                  (not (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))))
+                  (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc))) 
+                  (not (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)))))
                  1) 
-                (t 0)))))
+                (t 0))))
+;       (in-full-line-comment              
+;        (save-excursion 
+;          (cond ( 
+;                 (string-match "^\\w*//" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
+;                 )
+;                 1) 
+;                (t 0)
+;                ))))
+       )
 ;    (prin1 open-brak)
 ;    (prin1 close-brak)
 ;    (prin1 ci)
-    (+ ci (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level)))))
+    (+ ci 
+       ;(* (- 1 in-full-line-comment)
+       (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level)
+       ;                                  )
+       ))))
 
 
 (defun hoc-indent-line ()
   (interactive)
-    ; Is the previous line blank, i.e. does not contain any word characters
-  (forward-line -1)
-  (cond ((not 
-         (string-match "\\w" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))))
-;         (prin1 "blank")
-         (hoc-indent-line)))
-  (forward-line 1)
-  (indent-line-to (hoc-calc-indent)))
+  (save-excursion 
+    (cond
+     ; Are we on the first line of the buffer?  If so, just indent to 0
+     ((= (line-number) 1)   (indent-line-to 0))
+     ; Otherwise do the main indent routine
+     ; Is the previous line blank, i.e. does not contain any word characters? 
+     ; If so, we should indent it
+     (t 
+      (forward-line -1)
+      (cond ((not 
+              (string-match "\\w" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))))
+             (hoc-indent-line)))
+      (forward-line 1)
+      ; Finally we indent this line
+      (indent-line-to (hoc-calc-indent))))))
 
 
 ;;; The return key ============================================================
@@ -320,10 +356,50 @@ Must be one of:
   (forward-line 1)
   (hoc-indent-line))
 
+(defcustom hoc-closing-brace-function 'hoc-plain-closing-brace
+  "Function to handle \"}\" key.
+Must be one of:
+    'hoc-plain-closing-brace
+    'hoc-electric-closing-brace
+    "
+  :group 'hoc
+  :type '(choice (function-item hoc-plain-closing-brace)
+		 (function-item hoc-electric-closing-brace)))
+
+(defun hoc-closing-brace ()
+  "Handle closing brace in `hoc-mode'."
+  (interactive)
+  (funcall hoc-closing-brace-function))
+
+(defun hoc-plain-closing-brace ()
+  "Insert closing brace."
+  (interactive)
+  (insert-char ?} ))
+
+(defun hoc-electric-closing-brace ()
+  "Insert closing brace and indent."
+  (interactive)
+  (insert-char ?} )
+  (hoc-indent-line)
+  (end-of-line))
+
 
 
 ;;; Change log
 ;;; $Log: nrnhoc.el,v $
+;;; Revision 1.12  2003/03/07 13:08:23  dcs
+;;; * Version 0.3
+;;; * New feature: electric closing braces
+;;; * Bug fix: Indentation of comments with braces in them
+;;; * Bug fix: Indentation of first line of buffer
+;;; * Bug fix: Point location in line doesn't change when indenting now
+;;; * New functions: hoc-closing-brace, hoc-plain-closing-brace,
+;;;   hoc-electric-closing-brace
+;;; * New variable: hoc-closing-brace-function
+;;; * New feature: celsius, dt, t, clamp_resist, secondorder fontified
+;;; * New function: hoc-point-at-eol-or-boc
+;;; * Changed functions: hoc-calc-indent, hoc-indent-line
+;;;
 ;;; Revision 1.11  2003/03/06 13:55:41  dcs
 ;;; * Version 0.2.2
 ;;; * Another modification to hoc-indent-before-ret to fix the bug better
