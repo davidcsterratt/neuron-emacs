@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.3.1
+;; Version: 0.3.2
 ;; Keywords: HOC, NEURON
 ;;
 ;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
@@ -57,7 +57,7 @@
 
 ;;; Code:
 
-(defconst hoc-mode-version "0.3.1"
+(defconst hoc-mode-version "0.3.2"
   "Current version of HOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -266,10 +266,9 @@ All Key Bindings:
         (save-excursion 
           (forward-line -1)
           (cond ((and
-;                  (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
                   (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)))
 
-                  (not (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)) )))
+                  (not (string-match "{.*}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)) )))
                  1) (t 0))))
        ; is there an closing bracket on this line that isn't 
        ; cancelled by a opening bracket?
@@ -277,23 +276,13 @@ All Key Bindings:
         (save-excursion 
           (cond ((and 
                   (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc))) 
-                  (not (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)))))
+                  (not (string-match "{.*}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)))))
                  1) 
                 (t 0))))
-;       (in-full-line-comment              
-;        (save-excursion 
-;          (cond ( 
-;                 (string-match "^\\w*//" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))
-;                 )
-;                 1) 
-;                (t 0)
-;                ))))
-       )
 ;    (prin1 open-brak)
 ;    (prin1 close-brak)
 ;    (prin1 ci)
     (+ ci 
-       ;(* (- 1 in-full-line-comment)
        (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level)
        ;                                  )
        ))))
@@ -392,6 +381,12 @@ Must be one of:
 
 ;;; Change log
 ;;; $Log: nrnhoc.el,v $
+;;; Revision 1.14  2003/03/10 15:18:37  dcs
+;;; * Version 0.3.2
+;;; * Bug fix: closing and opening bracket on same line (e.g. " } else { ")
+;;;   now are treated as closing bracket
+;;; * Changed function hoc-calc-indent
+;;;
 ;;; Revision 1.13  2003/03/07 17:58:31  dcs
 ;;; * Version 0.3.1
 ;;; * Bug fix: tab on empty line puts the point at the end of the line now
