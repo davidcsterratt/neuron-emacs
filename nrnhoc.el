@@ -1,4 +1,4 @@
-;;; hoc.el --- major mode for HOC dot-hoc files
+;;; nrnhoc.el --- major mode for Neuron HOC dot-hoc files
 ;;
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
@@ -24,25 +24,25 @@
 ;;
 ;;; Commentary:
 ;;
-;; This major mode for GNU Emacs provides support for editing HOC
+;; This major mode for GNU Emacs provides support for editing Neuron HOC
 ;; dot-hoc files.  It automatically indents for block structures and
 ;; comments.  It highlights code using font-lock.
 ;;
 ;;; Finding Updates:
 ;;
-;; The latest stable version of hoc.el can be found here:
+;; The latest stable version of nrnhoc.el can be found here:
 ;;
-;; http://www.anc.ed.ac.uk/~dcs/progs/neuron/hoc.el
+;; http://www.anc.ed.ac.uk/~dcs/progs/neuron/nrnhoc.el
 ;;
 ;;; Installation:
 ;;
-;;   Put the this file as "hoc.el" somewhere on your load path, then
+;;   Put the this file as "nrnhoc.el" somewhere on your load path, then
 ;;   add this to your .emacs or init.el file:
 ;;
-;;   (autoload 'hoc-mode "hoc" "Enter HOC mode." t)
-;;   (setq auto-mode-alist (cons '("\\.hoc\\'" . hoc-mode) auto-mode-alist))
+;;   (autoload 'nrnhoc-mode "nrnhoc" "Enter NRNHOC mode." t)
+;;   (setq auto-mode-alist (cons '("\\.hoc\\'" . nrnhoc-mode) auto-mode-alist))
 ;;
-;; Please read the mode help for hoc-mode for configuration options.
+;; Please read the mode help for nrnhoc-mode for configuration options.
 ;;
 ;; Syntax highlighting:
 ;;   To get font-lock try adding this for older emacsen:
@@ -57,8 +57,8 @@
 
 ;;; Code:
 
-(defconst hoc-mode-version "0.3.3"
-  "Current version of HOC mode.")
+(defconst nrnhoc-mode-version "0.3.3"
+  "Current version of NRNHOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
 (eval-and-compile
@@ -79,60 +79,60 @@
 ;; compatibility
 
 (cond ((fboundp 'point-at-bol)
-       (defalias 'hoc-point-at-bol 'point-at-bol)
-       (defalias 'hoc-point-at-eol 'point-at-eol))
+       (defalias 'nrnhoc-point-at-bol 'point-at-bol)
+       (defalias 'nrnhoc-point-at-eol 'point-at-eol))
       ;; Emacs 20.4
       ((fboundp 'line-beginning-position)
-       (defalias 'hoc-point-at-bol 'line-beginning-position)
-       (defalias 'hoc-point-at-eol 'line-end-position))
+       (defalias 'nrnhoc-point-at-bol 'line-beginning-position)
+       (defalias 'nrnhoc-point-at-eol 'line-end-position))
       (t
-       (defmacro hoc-point-at-bol ()
+       (defmacro nrnhoc-point-at-bol ()
 	 (save-excursion (beginning-of-line) (point)))
-       (defmacro hoc-point-at-eol ()
+       (defmacro nrnhoc-point-at-eol ()
 	 (save-excursion (end-of-line) (point)))))
 
 
 ;;; User-changeable variables =================================================
 
 ;; Variables which the user can change
-(defgroup hoc nil
-  "HOC mode."
-  :prefix "hoc-"
+(defgroup nrnhoc nil
+  "NRNHOC mode."
+  :prefix "nrnhoc-"
   :group 'languages)
 
-(defcustom hoc-mode-hook nil
-  "*List of functions to call on entry to HOC mode."
-  :group 'hoc
+(defcustom nrnhoc-mode-hook nil
+  "*List of functions to call on entry to NRNHOC mode."
+  :group 'nrnhoc
   :type 'hook)
 
-(defcustom hoc-indent-level 4
-  "*The basic indentation amount in `hoc-mode'."
-  :group 'hoc
+(defcustom nrnhoc-indent-level 4
+  "*The basic indentation amount in `nrnhoc-mode'."
+  :group 'nrnhoc
   :type 'integer)
 
-(defcustom hoc-comment-column 40
-  "*The goal comment column in `hoc-mode' buffers."
-  :group 'hoc
+(defcustom nrnhoc-comment-column 40
+  "*The goal comment column in `nrnhoc-mode' buffers."
+  :group 'nrnhoc
   :type 'integer)
 
 
-;;; HOC mode variables =====================================================
+;;; NRNHOC mode variables =====================================================
 
 
 ;;; Keybindings ===============================================================
 
 ;; mode map
-(defvar hoc-mode-map
+(defvar nrnhoc-mode-map
   (let ((km (make-sparse-keymap)))
-    (define-key km [return] 'hoc-return)
-    (define-key km [}] 'hoc-closing-brace)
+    (define-key km [return] 'nrnhoc-return)
+    (define-key km [}] 'nrnhoc-closing-brace)
     km)
-  "The keymap used in `hoc-mode'.")
+  "The keymap used in `nrnhoc-mode'.")
 
 
 ;;; Font locking keywords =====================================================
 
-(defvar hoc-font-lock-keywords 
+(defvar nrnhoc-font-lock-keywords 
       '(
 ;        ("//.*" . font-lock-comment-face)
 ;        ("/\\*[^\\*]*\\*/" . font-lock-comment-face)
@@ -193,39 +193,39 @@
 ;        ("\\<\\(break\\|ca\\(se\\|tch\\)\\|e\\(lse\\(\\|if\\)\\|ndfunction\\)\
 ;\\|for\\|global\\|if\\|otherwise\\|return\\|switch\\|try\\|while\\)\\>" . 1)
         )
-        "Expressions to highlight in HOC mode.")
+        "Expressions to highlight in NRNHOC mode.")
 
 
-;;; HOC mode entry point ==================================================
+;;; NRNHOC mode entry point ==================================================
 
-(defun hoc-mode ()
-  "HOC-mode is a major mode for editing HOC dot-hoc files.
-\\<hoc-mode-map>
+(defun nrnhoc-mode ()
+  "NRNHOC-mode is a major mode for editing Neuron HOC dot-hoc files.
+\\<nrnhoc-mode-map>
 
 Variables:
-  `hoc-indent-level'		       Level to indent blocks.
-  `hoc-comment-column'		     The goal comment column
+  `nrnhoc-indent-level'		       Level to indent blocks.
+  `nrnhoc-comment-column'		     The goal comment column
   `fill-column'			           Column used in auto-fill.
-  `hoc-return-function'  	     Customize RET handling with this function
-  `hoc-closing-brace-function' Customize } handling with this function
+  `nrnhoc-return-function'  	     Customize RET handling with this function
+  `nrnhoc-closing-brace-function' Customize } handling with this function
 
 All Key Bindings:
-\\{hoc-mode-map}"
+\\{nrnhoc-mode-map}"
   (interactive)
   (kill-all-local-variables)
-  (use-local-map hoc-mode-map)
-  (setq major-mode 'hoc-mode)
+  (use-local-map nrnhoc-mode-map)
+  (setq major-mode 'nrnhoc-mode)
   (setq mode-name "Hoc")
   (make-local-variable 'indent-line-function)
-  (setq indent-line-function 'hoc-indent-line)
+  (setq indent-line-function 'nrnhoc-indent-line)
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip "//\\s-+")
   (make-local-variable 'comment-start)
   (setq comment-start "//")
   (make-local-variable 'comment-column)
-  (setq comment-column hoc-comment-column)
+  (setq comment-column nrnhoc-comment-column)
   (make-local-variable 'font-lock-defaults)
-  (setq font-lock-defaults '((hoc-font-lock-keywords)
+  (setq font-lock-defaults '((nrnhoc-font-lock-keywords)
                              nil ; do not do string/comment highlighting
                              nil ; keywords are case sensitive.
                              ;; This puts _ as a word constituent,
@@ -236,22 +236,22 @@ All Key Bindings:
                               (?* . ". 23")   
                               (?\^m . "> b")
                               )))
-  (run-hooks 'hoc-mode-hook)
+  (run-hooks 'nrnhoc-mode-hook)
   )
 
 
 ;;; Indent functions ==========================================================
 
-(defun hoc-point-at-eol-or-boc ()
+(defun nrnhoc-point-at-eol-or-boc ()
   "Return the location of the point at the end of the line or the beginning of a //-style comment."
   (let 
       ((comment
-       (string-match "//" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol)))))
+       (string-match "//" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol)))))
     (if comment
         (+ (point-at-bol) comment )
       (point-at-eol))))
         
-(defun hoc-calc-indent ()
+(defun nrnhoc-calc-indent ()
   "Return the appropriate indentation for this line as an integer."
   (interactive)
   (let
@@ -266,17 +266,17 @@ All Key Bindings:
         (save-excursion 
           (forward-line -1)
           (cond ((and
-                  (string-match "{" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)))
+                  (string-match "{" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol-or-boc)))
 
-                  (not (string-match "{.*}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)) )))
+                  (not (string-match "{.*}" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol-or-boc)) )))
                  1) (t 0))))
        ; is there an closing bracket on this line that isn't 
        ; cancelled by a opening bracket?
        (close-brak              
         (save-excursion 
           (cond ((and 
-                  (string-match "}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc))) 
-                  (not (string-match "{.*}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)))))
+                  (string-match "}" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol-or-boc))) 
+                  (not (string-match "{.*}" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol-or-boc)))))
                  1) 
                 (t 0))))
        )
@@ -284,11 +284,11 @@ All Key Bindings:
 ;    (prin1 close-brak)
 ;    (prin1 ci)
     (+ ci 
-       (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level)
+       (* open-brak nrnhoc-indent-level) (* close-brak (- nrnhoc-indent-level)
        ))))
 
 
-(defun hoc-indent-line ()
+(defun nrnhoc-indent-line ()
   (interactive)
   (save-excursion 
     (cond
@@ -300,87 +300,90 @@ All Key Bindings:
      (t 
       (forward-line -1)
       (cond ((not 
-              (string-match "\\w" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))))
-             (hoc-indent-line)))
+              (string-match "\\w" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol))))
+             (nrnhoc-indent-line)))
       (forward-line 1)
       ; Finally we indent this line
-      (indent-line-to (hoc-calc-indent)))))
+      (indent-line-to (nrnhoc-calc-indent)))))
   ; Is this line blank?  If so put the point at the end
       (cond ((not
-             (string-match "\\w" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol))))
+             (string-match "\\w" (buffer-substring (nrnhoc-point-at-bol) (nrnhoc-point-at-eol))))
              (end-of-line)))
     )
 
 
 ;;; The return key ============================================================
 
-(defcustom hoc-return-function 'hoc-indent-before-ret
+(defcustom nrnhoc-return-function 'nrnhoc-indent-before-ret
   "Function to handle return key.
 Must be one of:
-    'hoc-plain-ret
-    'hoc-indent-after-ret
-    'hoc-indent-before-ret"
+    'nrnhoc-plain-ret
+    'nrnhoc-indent-after-ret
+    'nrnhoc-indent-before-ret"
   :group 'hoc
-  :type '(choice (function-item hoc-plain-ret)
-		 (function-item hoc-indent-after-ret)
-		 (function-item hoc-indent-before-ret)))
+  :type '(choice (function-item nrnhoc-plain-ret)
+		 (function-item nrnhoc-indent-after-ret)
+		 (function-item nrnhoc-indent-before-ret)))
 
-(defun hoc-return ()
-  "Handle carriage return in `hoc-mode'."
+(defun nrnhoc-return ()
+  "Handle carriage return in `nrnhoc-mode'."
   (interactive)
-  (funcall hoc-return-function))
+  (funcall nrnhoc-return-function))
 
-(defun hoc-plain-ret ()
+(defun nrnhoc-plain-ret ()
   "Vanilla new line."
   (interactive)
   (newline))
   
-(defun hoc-indent-after-ret ()
+(defun nrnhoc-indent-after-ret ()
   "Indent after new line."
   (interactive)
   (newline)
-  (hoc-indent-line))
+  (nrnhoc-indent-line))
 
-(defun hoc-indent-before-ret ()
+(defun nrnhoc-indent-before-ret ()
   "Indent line, start new line, and indent again."
   (interactive)
   (newline)
   (forward-line -1)
-  (hoc-indent-line)
+  (nrnhoc-indent-line)
   (forward-line 1)
-  (hoc-indent-line))
+  (nrnhoc-indent-line))
 
-(defcustom hoc-closing-brace-function 'hoc-plain-closing-brace
+(defcustom nrnhoc-closing-brace-function 'nrnhoc-plain-closing-brace
   "Function to handle \"}\" key.
 Must be one of:
-    'hoc-plain-closing-brace
-    'hoc-electric-closing-brace
+    'nrnhoc-plain-closing-brace
+    'nrnhoc-electric-closing-brace
     "
   :group 'hoc
-  :type '(choice (function-item hoc-plain-closing-brace)
-		 (function-item hoc-electric-closing-brace)))
+  :type '(choice (function-item nrnhoc-plain-closing-brace)
+		 (function-item nrnhoc-electric-closing-brace)))
 
-(defun hoc-closing-brace ()
-  "Handle closing brace in `hoc-mode'."
+(defun nrnhoc-closing-brace ()
+  "Handle closing brace in `nrnhoc-mode'."
   (interactive)
-  (funcall hoc-closing-brace-function))
+  (funcall nrnhoc-closing-brace-function))
 
-(defun hoc-plain-closing-brace ()
+(defun nrnhoc-plain-closing-brace ()
   "Insert closing brace."
   (interactive)
   (insert-char ?} ))
 
-(defun hoc-electric-closing-brace ()
+(defun nrnhoc-electric-closing-brace ()
   "Insert closing brace and indent."
   (interactive)
   (insert-char ?} )
-  (hoc-indent-line)
+  (nrnhoc-indent-line)
   (end-of-line))
 
 
 
 ;;; Change log
 ;;; $Log: nrnhoc.el,v $
+;;; Revision 1.16  2003/05/08 16:40:59  sterratt
+;;; * Fixed bug in documentation
+;;;
 ;;; Revision 1.15  2003/03/11 12:43:31  dcs
 ;;; * Version 0.3.3
 ;;; * Fixed fatal bug due to brackets left from removing comment in
