@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.3.2
+;; Version: 0.3.3
 ;; Keywords: HOC, NEURON
 ;;
 ;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
@@ -57,7 +57,7 @@
 
 ;;; Code:
 
-(defconst hoc-mode-version "0.3.2"
+(defconst hoc-mode-version "0.3.3"
   "Current version of HOC mode.")
 
 ;; From custom web page for compatibility between versions of custom:
@@ -279,12 +279,12 @@ All Key Bindings:
                   (not (string-match "{.*}" (buffer-substring (hoc-point-at-bol) (hoc-point-at-eol-or-boc)))))
                  1) 
                 (t 0))))
+       )
 ;    (prin1 open-brak)
 ;    (prin1 close-brak)
 ;    (prin1 ci)
     (+ ci 
        (* open-brak hoc-indent-level) (* close-brak (- hoc-indent-level)
-       ;                                  )
        ))))
 
 
@@ -381,6 +381,11 @@ Must be one of:
 
 ;;; Change log
 ;;; $Log: nrnhoc.el,v $
+;;; Revision 1.15  2003/03/11 12:43:31  dcs
+;;; * Version 0.3.3
+;;; * Fixed fatal bug due to brackets left from removing comment in
+;;;   previous version
+;;;
 ;;; Revision 1.14  2003/03/10 15:18:37  dcs
 ;;; * Version 0.3.2
 ;;; * Bug fix: closing and opening bracket on same line (e.g. " } else { ")
