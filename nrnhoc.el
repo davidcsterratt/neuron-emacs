@@ -3,10 +3,10 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 03 Mar 03
-;; Version: 0.4.5
+;; Version: 0.4.6
 ;; Keywords: HOC, NEURON
 ;;
-;; Copyright (C) 2003 David C. Sterratt and Andrew Gillies
+;; Copyright (C) 2003-2006 David C. Sterratt and Andrew Gillies
 ;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -169,15 +169,17 @@ be given to `goto-line' to get back to the current line."
       '(
 ;        ("//.*" . font-lock-comment-face)
 ;        ("/\\*[^\\*]*\\*/" . font-lock-comment-face)
-        ; Keywords (proc and func are syntax)
+        ;; Keywords (proc and func are syntax)
         ("\\<\\(break\\|else\\|insert\\|stop\\|\\|continue\\|em\
-\\|local\\|strdef\\|\\|debug\\|eqn\\|print\\|uninsert\\|\\|delete\
+\\|local\\|localobj\\|strdef\\|\\|debug\\|eqn\\|print\\|uninsert\\|\\|delete\
 \\|for\\|read\\|while\\|\\|depvar\\|help\\|return\\|\\|double\
-\\|if\\|setpointer\\|proc\\|func\\)\\>" . 1)
-        ; Object-oriented-programming
+\\|if\\|setpointer\\)\\>" . font-lock-keyword-face)
+        ;; Syntax: neuron/general/ocsyntax.html#syntax
+        ("\\<\\(iterator\\|proc\\|func\\|obfunc\\)\\>" . font-lock-keyword-face)
+        ;; Object-oriented-programming
         ("\\<\\(begintemplate\\|init\\|objref\\|endtemplate\\|new\
-\\|public\\|external\\|objectvar\\|unref\\)\\>" . 1)
-        ; Section stuff: neuron/geometry.html
+\\|public\\|external\\|objectvar\\|unref\\)\\>" . font-lock-keyword-face)
+        ;; Section stuff: neuron/geometry.html
         ("\\<\\(access\\|forsec\\|pop_section\
 \\|forall\\|ifsec\\|push_section\
 \\|diam3d\\|pt3dchange\\|setSpineArea\
@@ -187,14 +189,21 @@ be given to `goto-line' to get back to the current line."
 \\|define_shape\\|n3d\\|pt3dremove\\|z3d\
 \\|pt3dadd\\|ri\
 \\|connect\\|delete_section\
-\\|create\\|disconnect\\|topology\\)\\>" . 1)
-        ; Built-in Variables: neuron/geometry.html
+\\|create\\|disconnect\\|topology\\)\\>" . font-lock-keyword-face)
+        ;; Built-in variables: neuron/geometry.html
         ("\\<\\(L\\|Ra\\|diam\\|nseg\\|diam_changed\\)\\>" .
          font-lock-variable-name-face)
-        ; Built-in global varibailes: neuron/1nrn.html#globals
+        ;; Built-in global variables: neuron/1nrn.html#globals
         ("\\<\\(celsius\\|dt\\|t\\|clamp_resist\\|secondorder\\)\\>" .
          font-lock-variable-name-face)
-        ; neuron/nrnoc.html#functions
+        ;; Built-in global variables: neuron/general/predec.html
+        ("\\<\\(hoc_ac_\\|hoc_cross_x_\\|hoc_cross_y_\\|hoc_obj_\
+\\|float_epsilon\\)\\>" .
+         font-lock-variable-name-face)
+        ;; Physical and Mathematical Constants: neuron/general/predec.html#Constants
+        ("\\<\\(DEG\\|E\\|FARADAY\\|GAMMA\\|PHI\\|PI\\|R\\)\\>" .
+         font-lock-constant-face)
+        ;; neuron/nrnoc.html#functions
         ("\\<\\(attr_praxis\\|fit_praxis\\|nrnmechmenu\\|secname\
 \\|batch_run\\|fmatrix\\|nrnpointmenu\\|section_orientation\
 \\|batch_save\\|fstim\\|nrnsecmenu\\|sectionname\
@@ -203,10 +212,22 @@ be given to `goto-line' to get back to the current line."
 \\|fclampi\\|initnrn\\|parent_section\\|this_section\
 \\|fclampv\\|ismembrane\\|prstim\
 \\|fcurrent\\|issection\\|psection\
-\\|finitialize\\|nrnglobalmechmenu\\|pval_praxis\\)\\>" . 1)
-        ; neuron/nrnoc.html#Objects
-        ("\\<\\(Random\\|Vector\\|Pointer\\|Graph\\)\\>" . 1)
-        ; Functions
+\\|finitialize\\|nrnglobalmechmenu\\|pval_praxis\\)\\>" 
+         . font-lock-function-name-face)
+        ;; Mathematical functions: neuron/general/function/sin.html#math
+        ("\\<\\(abs\\|cos\\|erf\\|erfc\\|exp\\|int\\|log\\|log10\
+\\|sin\\|sqrt\\|tanh\\)\\>" . font-lock-function-name-face)
+        ;; Built-in classes: neuron/0nrn.html#classes
+        ("\\<\\(Deck\\|File\\|GUIMath\\|Glyph\\|Graph\\|HBox\\|List\
+\\|Matrix\\|PWManager\\|Pointer\\|Random\\|StringFunctions\\|SymChooser\
+\\|TextEditor\\|Timer\\|VBox\\|ValueFieldEditor\\|Vector\\)\\>" . font-lock-function-name-face)
+        ;; Built-in classes: neuron/1nrn.html#classes
+        ("\\<\\(CVode\\|KSState\\|NetCon\\|SaveState\
+\\|FInitializeHandler\\|KSTrans\\|ParallelContext\\|SectionBrowser\
+\\|Impedance\\|LinearMechanism\\|ParallelNetManager\\|SectionList\
+\\|KSChan\\|MechanismStandard\\|PlotShape\\|SectionRef\\|KSGate\
+\\|MechanismType\\|RangeVarPlot\\|Shape\\)\\>" . font-lock-function-name-face)
+        ;; Functions 
         ("\\<\\(fprint\\|hoc_stdio\\|sred\\|xred\
 \\|fscan\\|printf\\|wopen\
 \\|getstr\\|ropen\\|xopen\
@@ -223,8 +244,6 @@ be given to `goto-line' to get back to the current line."
 \\|execute\\|neuronhome\\|saveaudit\\|variable_domain\
 \\|execute1\\|numarg\\|show_errmess_always\
 \\|getcwd\\|object_id\\|solve\\)\\>" . font-lock-function-name-face)
-;        ("\\<\\(break\\|ca\\(se\\|tch\\)\\|e\\(lse\\(\\|if\\)\\|ndfunction\\)\
-;\\|for\\|global\\|if\\|otherwise\\|return\\|switch\\|try\\|while\\)\\>" . 1)
         )
         "Expressions to highlight in NRNHOC mode.")
 
@@ -400,6 +419,12 @@ Must be one of:
 
 ;;; Change log
 ;; $Log: nrnhoc.el,v $
+;; Revision 1.23  2006/08/31 14:57:48  sterratt
+;; * Version 0.4.6
+;; * Various keywords and syntax added, as suggested by Ronald van Elburg
+;;   in this thread:
+;;   http://www.neuron.yale.edu/phpBB2/privmsg.php?folder=inbox&mode=read&p=213&sid=81e84669789060e43af5ed839a10a413
+;;
 ;; Revision 1.22  2003/09/11 10:17:36  sterratt
 ;; * Version 0.4.5
 ;; * Fixed bug which tried to make negative indents
