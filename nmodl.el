@@ -47,7 +47,7 @@
 ;;   add this to your .emacs or init.el file:
 ;;
 ;;   (autoload 'nmodl-mode "nmodl" "Enter NMODL mode." t)
-;;   (setq auto-mode-alist (cons '("\\.hoc\\'" . nmodl-mode) auto-mode-alist))
+;;   (setq auto-mode-alist (cons '("\\.mod\\'" . nmodl-mode) auto-mode-alist))
 ;;
 ;; Please read the mode help for nmodl-mode for configuration options.
 ;;
@@ -65,7 +65,7 @@
 
 ;;; Code:
 
-(defconst nmodl-mode-version "0.1"
+(defconst nmodl-mode-version "0.1.1"
   "Current version of NMODL mode.")
 
 
@@ -102,7 +102,7 @@
         ; Keywords (proc and func are syntax)
         ("\\<\\(COMMENT[[:ascii:]]+?ENDCOMMENT\\)\\>" . font-lock-comment-face)
         ("\\<\\(COMMENT\\|TITLE\\|UNITS\\|PARAMETER\\|ASSIGNED\\|CONSTANT\\|STATE\\|DERIVATIVE\\|INITIAL\\|BREAKPOINT\\|LOCAL\\|PROCEDURE\\|KINETIC\\|FUNCTION\\|ENDCOMMENT\\|DEFINE\\|NEURON\\|BEFORE\\|AFTER\\|NET_RECEIVE\\)\\>" . font-lock-keyword-face)
-        ("\\<\\(FROM\\|TO\\|COMPARTMENT\\|SOLVE\||STEADYSTATE\\|METHOD\\|SUFFIX\\|USEION\\|READ\\|WRITE\\|GLOBAL\\|RANGE\\|LONGITUDINAL_DIFFUSION\\|LINEAR\\|NONLINEAR\\|SOLVE\\|POINT_PROCESS\\|NONSPECIFIC_CURRENT\\)\\>" . font-lock-keyword-face))
+        ("\\<\\(FROM\\|TO\\|COMPARTMENT\\|SOLVE\||STEADYSTATE\\|METHOD\\|SUFFIX\\|USEION\\|READ\\|WRITE\\|GLOBAL\\|RANGE\\|LONGITUDINAL_DIFFUSION\\|LINEAR\\|NONLINEAR\\|SOLVE\\|POINT_PROCESS\\|NONSPECIFIC_CURRENT\\|STEADYSTATE\\|CONSERVE\\)\\>" . font-lock-keyword-face))
       "Expressions to highlight in NMODL mode.")
 
 (define-derived-mode nmodl-mode
