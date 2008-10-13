@@ -3,7 +3,7 @@
 ;; Author: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Maintainer: David C. Sterratt <david.c.sterratt@ed.ac.uk>
 ;; Created: 20 Apr 06
-;; Version: 0.1
+;; Version: 0.1.1
 ;; Keywords: NMODL, NEURON
 ;;
 ;; Copyright (C) 2006 David C. Sterratt
