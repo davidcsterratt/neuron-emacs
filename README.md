@@ -10,10 +10,9 @@ worked on this project.
 
 1. Copy `nrnhoc.el` somewhere in your emacs load path, then add this
    to your `.emacs` file:
-```
-(autoload 'nrnhoc-mode "nrnhoc" "Enter NRNHOC mode." t)
-(setq auto-mode-alist (cons '("\\.hoc\\'" . nrnhoc-mode) auto-mode-alist))
-```
+   ```(autoload 'nrnhoc-mode "nrnhoc" "Enter NRNHOC mode." t)
+   (setq auto-mode-alist (cons '("\\.hoc\\'" . nrnhoc-mode) auto-mode-alist))
+   ```
 2. Syntax highlighting may work for you automatically, depending on
    your emacs setup. If it doesn't work, try putting
 ```
@@ -30,3 +29,5 @@ worked on this project.
 (autoload 'nmodl-mode "nmodl" "Enter NMODL mode." t)
 (setq auto-mode-alist (cons '("\\.mod\\'" . nmodl-mode) auto-mode-alist))
 ```
+
+
