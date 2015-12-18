@@ -23,8 +23,8 @@ somewhere in your `.emacs` file.
 
 ## Installing nmodl.el
 
-1. Install nrnhoc mode as above.
-2. Put `nmodl.el` somewhere in your emacs load path, then add this to
+* Install nrnhoc mode as above.
+* Put `nmodl.el` somewhere in your emacs load path, then add this to
 your `.emacs` file:
 ```
 (autoload 'nmodl-mode "nmodl" "Enter NMODL mode." t)
